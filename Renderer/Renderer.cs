@@ -11,16 +11,49 @@ namespace Renderer
 {
     internal static class Renderer
     { 
-        public static void CreateRender(int ppmWidth, int ppmHeight, int frameCount, string path = null)
+        public static void CreateRender(int pmmWidth, int pmmHeight, int frameCount, string path = null)
         {
-            int3[,] pixelBuffer = new int3[ppmWidth, ppmHeight];
+            int3[,] pixelBuffer = new int3[pmmWidth, pmmHeight];
 
-            TwoDimensionalTriangle tri = new TwoDimensionalTriangle(
-                new float2(ppmWidth / 2, 0), // Vertex A
-                new float2(0, ppmHeight), // Vertex B
-                new float2(ppmWidth, ppmHeight)  // Vertex C (different from A and B)
-            );
+            List<TwoDimensionalTriangle> triangles = new List<TwoDimensionalTriangle>();
 
+            #region Objects to render
+
+            var gridSizes = new float2(pmmWidth, pmmHeight);
+
+            var triCount = 32;
+            for (int i = 0; i < triCount; i++)
+            {
+                triangles.Add(TwoDimensionalTriangle.CreateRandomTriangle(
+                    new float2(
+                        Random.Shared.Next(0, pmmWidth),
+                        Random.Shared.Next(0, pmmHeight)
+                    ),
+                    gridSizes,
+                   Random.Shared.Next(32, 128) / 1000f
+                ));
+            }
+
+            var faceCount = 32;
+            Face[] faces = new Face[faceCount];
+
+            for (int i = 0; i < faceCount; i++)
+            {
+                faces[i] = Face.CreateRandomFace(
+                    new float2(
+                        Random.Shared.Next(0, pmmWidth),
+                        Random.Shared.Next(0, pmmHeight)
+                    ),
+                    Random.Shared.Next(32, 64)
+                );
+            }
+
+            foreach (var face in faces)
+            {
+                triangles.AddRange(face.tris);
+            }
+
+            #endregion
 
 
             for (int i = 0; i < frameCount; i++)
@@ -30,12 +63,12 @@ namespace Renderer
 
                 StreamWriter ppmFile = new StreamWriter(curPath);
 
-                #region PPM BoilerPlate
+                #region PMM BoilerPlate
                 //The magic number making it so the ppm's numbers will be recognised as whole numbers, instead of bytes(code P6)
                 ppmFile.WriteLine("P3");
 
                 //Specifying the width and height of the ppm image
-                ppmFile.WriteLine($"{ppmWidth} {ppmHeight}");
+                ppmFile.WriteLine($"{pmmWidth} {pmmHeight}");
 
                 //The maximum color value, which is 255 for RGB
                 ppmFile.WriteLine(255);
@@ -43,26 +76,36 @@ namespace Renderer
                 #endregion
 
                 var curPixelPos = new float2(0, 0);
+                int3 pixelColor = new int3(0, 0, 0);
                 //The y value of the grid(aka the height)
-                for (int y = 0; y < ppmHeight; y++)
+                for (int y = 0; y < pmmHeight; y++)
                 {
                     //The x value of the grid(aka the width)
-                    for (int x = 0; x < ppmWidth; x++)
+                    for (int x = 0; x < pmmWidth; x++)
                     {
                         curPixelPos.x = x;
                         curPixelPos.y = y;
 
-                        if (!IsPixelInTriangle(tri, curPixelPos))
+                        bool isInTriangle = false;
+                        for (int o = 0; o < triangles.Count; o++)
+                        {
+                            if (TwoDimensionalTriangle.IsPixelInTriangle(triangles[o], curPixelPos))
+                            {
+                                isInTriangle = true;
+                                pixelColor = triangles[o].RGB;
+                            }
+                        }
+
+                        if (isInTriangle)
+                        {
+                            //If the pixel is in the triangle, set it to the color of the triangle
+                            pixelBuffer[x, y] = pixelColor;
+                        }
+                        else
                         {
                             //If the pixel is not in the triangle, set it to black
                             pixelBuffer[x, y] = new int3(0, 0, 0);
                         }
-                        else
-                        {
-                            //If the pixel is in the triangle, set it to white
-                            pixelBuffer[x, y] = new int3(255, 255, 255);
-                        }
-
 
                         //Create a pixel buffer, not used with ppm format. but usefull when ill introduce raylib or some other graphics library
 
@@ -83,30 +126,6 @@ namespace Renderer
             }
         }
 
-        #region Triangle_Rendering
-        //Renders a triangle defined by three vertices, and fills it with the color specified
-        private static bool IsPixelInTriangle(TwoDimensionalTriangle tri, float2 pixelPoint)
-        {
-
-            bool sideAB = isPointOnRightSideOfLine(tri.vertAPos, tri.vertBPos, pixelPoint);
-
-            bool sideBC = isPointOnRightSideOfLine(tri.vertBPos, tri.vertCPos, pixelPoint);
-
-            bool sideCA = isPointOnRightSideOfLine(tri.vertCPos, tri.vertAPos, pixelPoint);
-
-            return sideAB == sideBC && sideBC == sideCA;
-        }
-
-        //Calculates whether or not a point is on the right side of a line defined by two points, 
-        private static bool isPointOnRightSideOfLine(float2 a, float2 b, float2 p)
-        {
-            float2 ap = p - a;
-            float2 abPerp = RenderMaths.Perpendicular(b - a);
-
-            return RenderMaths.Dot(ap, abPerp) >= 0;
-        }
-
-        #endregion
 
     }
 }

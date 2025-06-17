@@ -14,11 +14,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\nobem\\source\\repos\\Renderer\\Renderer.csproj",
+      "projectUniqueName": "C:\\Users\\nobem\\Documents\\Github\\Renderer\\Renderer\\Renderer.csproj",
       "projectName": "Renderer",
-      "projectPath": "C:\\Users\\nobem\\source\\repos\\Renderer\\Renderer.csproj",
+      "projectPath": "C:\\Users\\nobem\\Documents\\Github\\Renderer\\Renderer\\Renderer.csproj",
       "packagesPath": "C:\\Users\\nobem\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\nobem\\source\\repos\\Renderer\\obj\\",
+      "outputPath": "C:\\Users\\nobem\\Documents\\Github\\Renderer\\Renderer\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

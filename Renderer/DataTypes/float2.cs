@@ -22,5 +22,10 @@ namespace Renderer.DataTypes
             return result;
         }
 
+        public static float2 operator +(float2 a, float2 b)
+        {
+            float2 result = new float2(a.x + b.x, a.y + b.y);
+            return result;
+        }
     }
 }

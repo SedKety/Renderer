@@ -7,12 +7,12 @@ namespace Renderer
 {
     internal class Program
     {
-        const int PpmWidth = 124;
-        const int PpmHeight = PpmWidth;
+        const int PmmWidth = 512;
+        const int PmmHeight = PmmWidth;
         const int FrameCount = 1;
-        static void Main(string[] args)
+        static void Main()
         {
-            Renderer.CreateRender(PpmWidth, PpmHeight, FrameCount);
+            Renderer.CreateRender(PmmWidth, PmmHeight, FrameCount);
         }
         
     }
